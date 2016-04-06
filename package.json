@@ -1,0 +1,18 @@
+{
+  "name": "language-keymaerax",
+  "main": "./lib/language-keymaerax",
+  "version": "0.1.0",
+  "description": "A KeYmaeraX syntax definition for the Atom editor",
+  "keywords": [
+  ],
+  "activationCommands": {
+    "atom-workspace": "language-keymaerax:toggle"
+  },
+  "repository": "https://github.com/atom/language-keymaerax",
+  "license": "MIT",
+  "engines": {
+    "atom": ">=1.0.0 <2.0.0"
+  },
+  "dependencies": {
+  }
+}

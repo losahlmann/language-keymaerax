@@ -1,0 +1,383 @@
+name: 'KeYmaeraX Syntax'
+scopeName: 'source.key'
+fileTypes: [
+    'key'
+    'kyx'
+    'keyX'
+]
+
+# assign scopes! determine lexems!
+
+# TODO: names to be set correctly
+# TODO: variables and keywords in auto-completion suggestions
+# TODO: when to use \b ?
+patterns: [
+    {
+        include: '#comments'
+    }
+    {
+        name: 'meta.functions.key'
+        begin: '\\b(Functions.)\\n'
+        beginCaptures:
+            '1':
+                name: 'keyword.other.functions.key'
+        end: '\\b(End.)\\n'
+        endCaptures:
+            '1':
+                name: 'keyword.control.end.key'
+        patterns: [
+            {
+                include: '#comments'
+            }
+            {
+                include: '#definitions'
+            }
+        ]
+    }
+    {
+        name: 'meta.program_variables.key'
+        begin: '\\b(ProgramVariables.)\\n'
+        beginCaptures:
+            '1':
+                name: 'keyword.other.variables.key'
+        end: '\\b(End.)\\n'
+        endCaptures:
+            '1':
+                name: 'keyword.control.end.key'
+        patterns: [
+            {
+                include: '#comments'
+            }
+            {
+                include: '#definitions'
+            }
+        ]
+    }
+    {
+        name: 'meta.problem.key'
+        begin: '\\b(Problem.)\\n'
+        beginCaptures:
+            '1':
+                name: 'keyword.other.problem.key'
+        end: '\\b(End.)\\n'
+        endCaptures:
+            '1':
+                name: 'keyword.control.end.key'
+        patterns: [
+            {
+                include: '#dL_formulae'
+            }
+        ]
+    }
+]
+
+# includes
+repository:
+
+    # multiline block comments
+    comments:
+        patterns: [
+            {
+                name: 'comment.block.key'
+                begin: '/\\*'
+                beginCaptures:
+                    '0':
+                        name: 'punctuation.definition.comment.begin.key'
+                end: '\\*/'
+                endCaptures:
+                    '0':
+                        name: 'punctuation.definition.comment.end.key'
+            }
+        ]
+
+    # function and variable definitions
+    definitions:
+        patterns: [
+            {
+                name: 'meta.definition.key'
+                match: '\\b(R) (\\w+(?:\\(\\))?)(\\.)'
+                captures:
+                    '1':
+                        name: 'storage.type.key'
+                    '2':
+                        name: 'entity.name.variable.key'
+                    '3':
+                        name: 'punctuation.terminator.key'
+            }
+        ]
+
+    # TODO: floating point invalid, only rational numbers
+    numbers:
+        patterns: [
+            {
+                # floats not supported
+                match: '(\\b(?:[0-9](?:[0-9])*\\.(?:[0-9]*)|(\\.[0-9](?:[0-9])*))(?:[eE][+-]?[0-9](?:[0-9])*)?\\b)'
+                name: 'constant.invalid.key'
+            }
+            {
+                # match integers, rationals and non-deterministic star
+                # positive lookbehind before *
+                match: '((?:[0-9]+(?:\\/[0-9]+)?|(?<=[:=])\\*))'
+                name: 'constant.numeric.key'
+            }
+        ]
+
+    booleans:
+        patterns: [
+            {
+                name: 'constant.language.key'
+                match: '(?>\\btrue\\b|\\bfalse\\b)'
+            }
+        ]
+
+    # need to change order of options to have longer matches first
+    # (?>) match longest
+    dL_terms:
+        patterns: [
+            # parentheses
+            {
+                name: 'punctuation.bracket.begin.key'
+                match: '\\('
+            }
+            {
+                name: 'punctuation.bracket.end.key'
+                match: '\\)'
+            }
+            # arithmetic operators
+            {
+                # negative lookbehind for *
+                name: 'keyword.operator.arithmetic.key'
+                match: '(?>\\^|(?<![:=])\\*|/|-|\\+)'
+            }
+            # diff operator
+            {
+                name: 'keyword.operator.prime.key'
+                match: '\''
+            }
+            # TODO: functions
+            {
+                include: '#numbers'
+            }
+        ]
+
+    dL_formulae:
+        patterns: [
+            # must be first to overwrite div and mult
+            {
+                include: '#comments'
+            }
+            # diff operator
+            {
+                name: 'keyword.operator.prime.key'
+                match: '\''
+            }
+            {
+                name: 'keyword.operator.relation.key'
+                match: '(?><=|>=|!=|=|>|<)'
+            }
+            {
+                name: 'keyword.operator.quantifier.key'
+                match: '(?>\\forall|\\exists)'
+            }
+            {
+                name: 'keyword.operator.boolean.key'
+                match: '(?>!|&|\\|)'
+            }
+            {
+                name: 'keyword.operator.arrow.key'
+                match: '(?:<->|->|<-)'
+            }
+            # TODO: p(T) | p() | C{F}
+            {
+                name: 'meta.formula.square.key'
+                begin: '\\['
+                beginCaptures:
+                    '0':
+                        name: 'entity.other.square.begin.key'
+                end: '\\]'
+                endCaptures:
+                    '0':
+                        name: 'entity.other.square.end.key'
+                patterns: [
+                    {
+                        include: '#dL_programs'
+                    }
+                ]
+            }
+            {
+                name: 'meta.formula.diamond.key'
+                begin: '\\['
+                beginCaptures:
+                    '0':
+                        name: 'entity.other.diamond.begin.key'
+                end: '\\]'
+                endCaptures:
+                    '0':
+                        name: 'entity.other.diamond.end.key'
+                patterns: [
+                    {
+                        include: '#dL_programs'
+                    }
+                ]
+            }
+            {
+                include: '#dL_terms'
+            }
+            {
+                include: '#booleans'
+            }
+        ]
+
+    dL_programs:
+        patterns: [
+            {
+                include: '#comments'
+            }
+            # variable assignment
+            {
+                name: 'meta.program.assignment.key'
+                begin: '\\w+(?:\\s*)?(:=)'
+                beginCaptures:
+                    '1':
+                        name: 'keyword.operator.assignment.key'
+                # if ++ instead of ;, don't consume it
+                end: '(;|(?=\\+\\+)|(?=}))'
+                endCaptures:
+                    '0':
+                        name: 'punctuation.terminator.key'
+                patterns: [
+                    {
+                        include: '#dL_terms'
+                    }
+                ]
+            }
+            # differential assignment
+            {
+                name: 'meta.program.diff_assignment.key'
+                begin: '\\w+(\')(?:\\s*)?(:=)'
+                beginCaptures:
+                    '1':
+                        name: 'keyword.operator.prime.key'
+                    '2':
+                        name: 'keyword.operator.assignment.key'
+                # if ++ instead of ;, don't consume it
+                end: '(;|(?=\\+\\+)|(?=}))'
+                endCaptures:
+                    '1':
+                        name: 'punctuation.terminator.key'
+                patterns: [
+                    {
+                        include: '#dL_terms'
+                    }
+                ]
+            }
+            # test
+            {
+                name: 'meta.program.test.key'
+                begin: '\\?'
+                beginCaptures:
+                    '0':
+                        name: 'keyword.control.test.key'
+                end: ';'
+                endCaptures:
+                    '0':
+                        name: 'punctuation.terminator.key'
+                patterns: [
+                    {
+                        include: '#dL_formulae'
+                    }
+                ]
+            }
+            # loop
+            {
+                name: 'meta.program.loop.key'
+                match: '(})(\\*)'
+                captures:
+                    '1':
+                        name: 'punctuation.section.loop.end.key'
+                    '2':
+                        name: 'keyword.operator.loop.key'
+            }
+            # evolution domain
+            {
+                name: 'meta.program.evolution_domain'
+                begin: '&'
+                beginCaptures:
+                    '0':
+                        name: 'keyword.control.amp.key'
+                end: '(?=})|(;)'
+                endCaptures:
+                    '1':
+                        name: 'punctuation.terminator.key'
+                patterns: [
+                    {
+                        include: '#dL_formulae'
+                    }
+                ]
+            }
+            {
+                name: 'keyword.operator.choice.key'
+                match: '\\+\\+'
+            }
+            # parentheses
+            {
+                name: 'punctuation.section.block.begin.key'
+                match: '{'
+            }
+            {
+                # FIXME: is }; valid?
+                name: 'punctuation.section.block.end.key'
+                match: '(}|};)'
+            }
+            {
+                include: '#dL_diff_programs'
+            }
+            {
+                include: '#invariants'
+            }
+        ]
+
+    dL_diff_programs:
+        patterns: [
+            {
+                name: 'meta.diff_program.ode.key'
+                begin: '\\w+(\')(?:\\s*)?(=)'
+                beginCaptures:
+                    '1':
+                        name: 'keyword.operator.prime.key'
+                    '2':
+                        name: 'keyword.operator.assignment.key'
+                end: '(,|(?=;)|(?=&)|(?=}))'
+                endCaptures:
+                    '1':
+                        name: 'punctuation.seperator.key.key'
+                patterns: [
+                    {
+                        include: '#dL_terms'
+                    }
+                ]
+            }
+        ]
+
+    invariants:
+        patterns: [
+            {
+                name: 'meta.declaration.invariant.key' #?
+                begin: '(@invariant)(\\()'
+                beginCaptures:
+                    '1':
+                        name: 'storage.type.invariant.key'
+                    '2':
+                        name: 'punctuation.definition.invariant-arguments.begin.key'#?
+                # FIXME: detect end of invariant
+                end: '\\)\\n'
+                endCaptures:
+                    '0':
+                        name: 'punctuation.definition.invariant-arguments.end.key'#?
+                patterns: [
+                    {
+                        include: '#dL_formulae'
+                    }
+                ]
+            }
+        ]
