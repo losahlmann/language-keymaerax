@@ -201,11 +201,11 @@ repository:
             }
             {
                 name: 'meta.formula.diamond.key'
-                begin: '\\['
+                begin: '\\<'
                 beginCaptures:
                     '0':
                         name: 'entity.other.diamond.begin.key'
-                end: '\\]'
+                end: '\\>'
                 endCaptures:
                     '0':
                         name: 'entity.other.diamond.end.key'
@@ -310,6 +310,7 @@ repository:
                     }
                 ]
             }
+            # choice
             {
                 name: 'keyword.operator.choice.key'
                 match: '\\+\\+'
@@ -345,7 +346,7 @@ repository:
                 end: '(,|(?=;)|(?=&)|(?=}))'
                 endCaptures:
                     '1':
-                        name: 'punctuation.seperator.key.key'
+                        name: 'punctuation.seperator.key'
                 patterns: [
                     {
                         include: '#dL_terms'
@@ -361,7 +362,7 @@ repository:
                 begin: '(@invariant)(\\()'
                 beginCaptures:
                     '1':
-                        name: 'storage.type.invariant.key'
+                        name: 'storage.type.invariant.key' #?
                     '2':
                         name: 'punctuation.definition.invariant-arguments.begin.key' #?
                 # FIXME: detect end of invariant
