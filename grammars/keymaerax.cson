@@ -6,11 +6,6 @@ fileTypes: [
     'keyX'
 ]
 
-# assign scopes! determine lexems!
-
-# TODO: names to be set correctly
-# TODO: variables and keywords in auto-completion suggestions
-# TODO: when to use \b ?
 patterns: [
     {
         include: '#comments'
@@ -368,12 +363,12 @@ repository:
                     '1':
                         name: 'storage.type.invariant.key'
                     '2':
-                        name: 'punctuation.definition.invariant-arguments.begin.key'#?
+                        name: 'punctuation.definition.invariant-arguments.begin.key' #?
                 # FIXME: detect end of invariant
                 end: '\\)\\n'
                 endCaptures:
                     '0':
-                        name: 'punctuation.definition.invariant-arguments.end.key'#?
+                        name: 'punctuation.definition.invariant-arguments.end.key' #?
                 patterns: [
                     {
                         include: '#dL_formulae'
